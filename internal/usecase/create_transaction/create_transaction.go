@@ -3,12 +3,13 @@ package createtransaction
 import (
 	"github.com/Sans-arch/fc-walletcore/internal/entity"
 	"github.com/Sans-arch/fc-walletcore/internal/gateway"
+	"github.com/Sans-arch/fc-walletcore/pkg/events"
 )
 
 type CreateTransactionInputDTO struct {
 	AccountIDFrom string
-	AccountIDTo string
-	Amount float64
+	AccountIDTo   string
+	Amount        float64
 }
 
 type CreateTransactionOutputDTO struct {
@@ -17,13 +18,21 @@ type CreateTransactionOutputDTO struct {
 
 type CreateTransactionUsecase struct {
 	TransactionGateway gateway.TransactionGateway
-	AccountGateway gateway.AccountGateway
+	AccountGateway     gateway.AccountGateway
+	EventDispatcher    events.EventDispatcherInterface
+	TransactionCreated events.EventInterface
 }
 
-func NewTransactionUsecase(transactionGateway gateway.TransactionGateway, accountGateway gateway.AccountGateway) *CreateTransactionUsecase {
+func NewTransactionUsecase(
+	transactionGateway gateway.TransactionGateway,
+	accountGateway gateway.AccountGateway,
+	eventDispatcher events.EventDispatcherInterface,
+	transactionCreated events.EventInterface) *CreateTransactionUsecase {
 	return &CreateTransactionUsecase{
-		TransactionGateway: transactionGateway, 
-		AccountGateway: accountGateway,
+		TransactionGateway: transactionGateway,
+		AccountGateway:     accountGateway,
+		EventDispatcher:    eventDispatcher,
+		TransactionCreated: transactionCreated,
 	}
 }
 
@@ -44,5 +53,10 @@ func (uc *CreateTransactionUsecase) Execute(input CreateTransactionInputDTO) (*C
 	if err != nil {
 		return nil, err
 	}
-	return &CreateTransactionOutputDTO{ID: transaction.ID}, nil
+	output := &CreateTransactionOutputDTO{ID: transaction.ID}
+
+	uc.TransactionCreated.SetPayload(output)
+	uc.EventDispatcher.Dispatch(uc.TransactionCreated)
+
+	return output, nil
 }

@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/Sans-arch/fc-walletcore/internal/entity"
+	"github.com/Sans-arch/fc-walletcore/internal/event"
+	"github.com/Sans-arch/fc-walletcore/pkg/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -49,11 +51,14 @@ func TestCreateTransactionUsecase_Execute(t *testing.T) {
 
 	inputDto := CreateTransactionInputDTO{
 		AccountIDFrom: account1.ID,
-		AccountIDTo:  account2.ID,
-		Amount:      100,
+		AccountIDTo:   account2.ID,
+		Amount:        100,
 	}
 
-	uc := NewTransactionUsecase(mockTransaction, mockAccount)
+	dispatcher := events.NewEventDispatcher()
+	event := event.NewTransactionCreated()
+
+	uc := NewTransactionUsecase(mockTransaction, mockAccount, dispatcher, event)
 	output, err := uc.Execute(inputDto)
 	assert.Nil(t, err)
 	assert.NotNil(t, output)
