@@ -10,14 +10,13 @@ import (
 
 type TransactionDBTestSuite struct {
 	suite.Suite
-	db *sql.DB
-	client *entity.Client
-	client2 *entity.Client
-	accountFrom *entity.Account
-	accountTo *entity.Account
+	db            *sql.DB
+	client        *entity.Client
+	client2       *entity.Client
+	accountFrom   *entity.Account
+	accountTo     *entity.Account
 	transactionDB *TransactionDB
 }
-
 
 func (s *TransactionDBTestSuite) SetupSuite() {
 	db, err := sql.Open("sqlite3", ":memory:")
@@ -56,6 +55,6 @@ func TestTransactionDBTestSuite(t *testing.T) {
 func (s *TransactionDBTestSuite) TestCreate() {
 	transaction, err := entity.NewTransaction(s.accountFrom, s.accountTo, 100)
 	s.Nil(err)
-	err = s.transactionDB.Create(*transaction)
+	err = s.transactionDB.Create(transaction)
 	s.Nil(err)
 }

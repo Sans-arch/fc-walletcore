@@ -7,13 +7,13 @@ import (
 )
 
 type CreateTransactionInputDTO struct {
-	AccountIDFrom string
-	AccountIDTo   string
-	Amount        float64
+	AccountIDFrom string  `json:"account_id_from"`
+	AccountIDTo   string  `json:"account_id_to"`
+	Amount        float64 `json:"amount"`
 }
 
 type CreateTransactionOutputDTO struct {
-	ID string
+	ID string `json:"id"`
 }
 
 type CreateTransactionUsecase struct {
@@ -37,11 +37,11 @@ func NewTransactionUsecase(
 }
 
 func (uc *CreateTransactionUsecase) Execute(input CreateTransactionInputDTO) (*CreateTransactionOutputDTO, error) {
-	accountFrom, err := uc.AccountGateway.Get(input.AccountIDFrom)
+	accountFrom, err := uc.AccountGateway.FindByID(input.AccountIDFrom)
 	if err != nil {
 		return nil, err
 	}
-	accountTo, err := uc.AccountGateway.Get(input.AccountIDTo)
+	accountTo, err := uc.AccountGateway.FindByID(input.AccountIDTo)
 	if err != nil {
 		return nil, err
 	}

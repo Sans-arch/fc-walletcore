@@ -9,6 +9,8 @@ import (
 	"github.com/Sans-arch/fc-walletcore/internal/usecase/create_account"
 	"github.com/Sans-arch/fc-walletcore/internal/usecase/create_client"
 	"github.com/Sans-arch/fc-walletcore/internal/usecase/create_transaction"
+	"github.com/Sans-arch/fc-walletcore/internal/web"
+	"github.com/Sans-arch/fc-walletcore/internal/web/webserver"
 	"github.com/Sans-arch/fc-walletcore/pkg/events"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -26,9 +28,21 @@ func main() {
 
 	clientDb := database.NewClientDB(db)
 	accountDb := database.NewAccountDB(db)
-	transactionDb := database.TransactionDB(db)
+	transactionDb := database.NewTransactionDB(db)
 
 	createClientUsecase := create_client.NewCreateClientUsecase(clientDb)
 	createAccountUsecase := create_account.NewCreateAccountUsecase(accountDb, clientDb)
 	createTransactionUsecase := create_transaction.NewTransactionUsecase(transactionDb, accountDb, eventDispatcher, transactionCreatedEvent)
+
+	webserver := webserver.NewWebServer(":3000")
+
+	clientHandler := web.NewWebClientHandler(*createClientUsecase)
+	accountHandler := web.NewWebAccountHandler(*createAccountUsecase)
+	transactionHandler := web.NewWebTransactionHandler(*createTransactionUsecase)
+
+	webserver.AddHandler("/clients", clientHandler.CreateClient)
+	webserver.AddHandler("/accounts", accountHandler.CreateAccount)
+	webserver.AddHandler("/transactions", transactionHandler.CreateTransaction)
+
+	webserver.Start()
 }
