@@ -1,4 +1,4 @@
-package createclient
+package create_client
 
 import (
 	"testing"
@@ -27,7 +27,7 @@ func TestCreateClientUseCase_Execute(t *testing.T) {
 	m.On("Save", mock.Anything).Return(nil)
 	uc := NewCreateClientUsecase(m)
 
-	output, err := uc.Execute(CreateClientInputDTO{Name: "John Doe", Email: "j@j" })
+	output, err := uc.Execute(CreateClientInputDTO{Name: "John Doe", Email: "j@j"})
 	assert.Nil(t, err)
 	assert.NotNil(t, output)
 	assert.Equal(t, "John Doe", output.Name)
