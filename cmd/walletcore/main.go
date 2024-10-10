@@ -35,7 +35,9 @@ func main() {
 
 	eventDispatcher := events.NewEventDispatcher()
 	eventDispatcher.Register("TransactionCreated", handler.NewTransactionCreatedKafkaHandler(kafkaProducer))
+	eventDispatcher.Register("BalanceUpdated", handler.NewUpdateBalanceKafkaHandler(kafkaProducer))
 	transactionCreatedEvent := event.NewTransactionCreated()
+	balanceUpdatedEvent := event.NewBalanceUpdated()
 
 	clientDb := database.NewClientDB(db)
 	accountDb := database.NewAccountDB(db)
@@ -53,7 +55,7 @@ func main() {
 
 	createClientUsecase := create_client.NewCreateClientUsecase(clientDb)
 	createAccountUsecase := create_account.NewCreateAccountUsecase(accountDb, clientDb)
-	createTransactionUsecase := create_transaction.NewTransactionUsecase(uow, eventDispatcher, transactionCreatedEvent)
+	createTransactionUsecase := create_transaction.NewTransactionUsecase(uow, eventDispatcher, transactionCreatedEvent, balanceUpdatedEvent)
 
 	webserver := webserver.NewWebServer(":8080")
 
